@@ -1,0 +1,36 @@
+extends layout
+
+block content
+  .container
+    form(action='/profile/edit' method="POST")
+      .col-2of5.bg-white.profile
+        .relative.img-edit
+          img.avatar(src=user.avatarUrl alt="avatar")
+          img.avatar-upload(src="/img/upload.png" alt="upload-img")
+        input.input-profile(type="text" value=user.name name="name" placeholder="Full name")
+        h5=`@${user.username}`
+        input.input-profile(type="text" value=user.location name="location" placeholder="Location")
+        textarea.input-profile(placeholder="Personal description" name="bio")=user.bio
+        button.btn-primary.space-top Save
+        a.btn-border.space-top(href="/profile") Cancel
+    include tweet
+    
+block script
+  script.
+    $('.avatar-upload').click(function() {
+      uploadcare.openDialog(null, {
+        previewStep:true,
+        crop:true,
+      }).done((file) => {
+        file.promise().done(fileInfo=>{
+          $.ajax({
+            url: '/profile/avatar',
+            type: 'POST',
+            data: { avatarUrl: fileInfo.cdnUrl },
+            success(res) {
+              if (res.success) location.href='/profile';
+            }
+          });
+        })
+      })
+    });
